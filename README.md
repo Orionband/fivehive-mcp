@@ -1,6 +1,6 @@
 # FiveHive MCP
 
-## Installation
+## Installation for WINDOWS
 1. Run the commands in powershell:
 
 If you don't have uv, install it:
@@ -8,6 +8,12 @@ If you don't have uv, install it:
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
+If you don't have python, install it:
+```powershell
+winget install -e --id Python.Python.3.13
+```
+
+In a new powershell window in the directory that it is installed:
 ```powershell
 uv sync --extra test
 uv run pytest tests
