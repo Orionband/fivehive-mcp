@@ -13,7 +13,7 @@ def test_source_image_redirect_stages_upload_and_resolves_pointer(tmp_path, monk
     monkeypatch.setattr(server, "config", config)
     uri = "https://docs.google.com/docs-images-rt/source"
     snapshot = {"snapshotId": "snap", "documentId": "doc", "tabs": [], "assets": [{"assetId": "img1", "contentUri": uri}]}
-    artifact = create_artifact(config, snapshot, "chapter", {"subjectSlug": "biology", "unitId": "u1"}, {"title": "Title"})
+    artifact = create_artifact(config, snapshot, "chapter", {"subjectSlug": "sample-course", "unitId": "u1"}, {"title": "Title"})
     server.update_json(artifact["artifactId"], artifact["hash"], content={"time": 1, "version": "2.30.2", "blocks": [{"id": "image", "type": "image", "data": {"file": {"url": "local:image"}}}]}, manifest={**artifact["manifest"], "assetBindings": [{"assetId": "img1", "targetPointer": "/blocks/0/data/file/url"}]})
     buffer = BytesIO()
     Image.new("RGB", (2, 3)).save(buffer, format="PNG")

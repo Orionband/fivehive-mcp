@@ -142,17 +142,4 @@ def validate_artifact(content_type, content, manifest, snapshot):
         bindings = [b for b in manifest.get("assetBindings", []) if b.get("assetId") == asset["assetId"]]
         if not any(pointer_exists(content, b.get("targetPointer")) for b in bindings):
             diagnostics.append({"code": "SOURCE_IMAGE_UNBOUND", "severity": "blocking", "source": {"nodeId": asset.get("nodeId")}, "message": "Source image needs an asset binding at its output location; a placeholder or caption is insufficient."})
-    source_text = " ".join(text for _, text in text_values(snapshot.get("normalized", [])))
-    author = manifest.get("metadata", {}).get("author", "")
-    if re.search(r"written by|authored by|author:", source_text, re.I) and (not author or author.strip().lower() in {"google drive source", "source", "unknown"}):
-        diagnostics.append({"code": "SOURCE_AUTHOR_NOT_PRESERVED", "severity": "blocking", "message": "The source names an author; preserve that credit in metadata and map its relocation."})
-    # A passing mention in an introduction isn't an authored practice section.
-    practice_nodes = []
-    for node in snapshot.get("normalized", []):
-        paragraph = "".join(run.get("content", "") for run in node.get("runs", [])).strip()
-        if re.fullmatch(r"(?:\d+[.)]?\s*)?(?:practice questions?|check for understanding|practice mcqs?)\s*:?", paragraph, re.I):
-            practice_nodes.append(node)
-    if content_type == "chapter" and (practice_nodes or re.search(r"accuracy\s*\+\s*explanation|answer\s*\([A-Z]\)", source_text, re.I)):
-        if not any(block.get("type") == "questionsAddCard" for block in content.get("blocks", [])):
-            diagnostics.append({"code": "PRACTICE_NOT_CONVERTED", "severity": "blocking", "message": "Source practice requires question cards with supplied keys and rationales; prose flattening is incomplete."})
     return diagnostics

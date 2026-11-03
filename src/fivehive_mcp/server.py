@@ -39,10 +39,6 @@ def reference_resource() -> str:
     return resource_text("porting-reference.md")
 
 
-@mcp.resource("fivehive://website-examples")
-def website_examples_resource() -> str:
-    return resource_text("website-porting-examples.md")
-
 @mcp.resource("fivehive://schemas/{content_type}")
 def schema_resource(content_type: str) -> str:
     if content_type not in {"chapter", "test", "frq", "import-manifest", "diagnostics"}:

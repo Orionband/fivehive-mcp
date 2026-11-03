@@ -12,8 +12,6 @@ def resource_text(name: str) -> str:
         path = PROJECT_ROOT / "docs" / "google-docs-porting-reference.md"
     elif name.startswith("schemas/"):
         path = PROJECT_ROOT / name
-    elif name == "website-porting-examples.md":
-        path = PROJECT_ROOT / "docs" / name
     else:
         raise FileNotFoundError(f"Required MCP resource unavailable: {name}")
     return path.read_text(encoding="utf-8")

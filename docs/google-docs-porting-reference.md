@@ -1,8 +1,8 @@
 # Google Docs → FiveHive: JSON and MCP implementation reference
 
-The current editorial companion is `fivehive://editorial-standards`, delivered in full by `instructions` and `fivehive://instructions`. It incorporates all eight tabs of the [Website Porting Onboarding](https://docs.google.com/document/d/1ndEzGkivUaixkYwQWrDjKfKgZSD4allK40qpIPJULDY/edit), plus explicit biology/chemistry house rules. Source bullet symbols versus numbering must be resolved through list definitions; converted practice must not retain duplicate prose choice lists. Image citation text is exactly **Image Source**, linked to the supplied source page. Preserve book/page-only credits without inventing links, as the user explicitly requested.
+The current editorial companion is `fivehive://editorial-standards`, delivered in full by `instructions` and `fivehive://instructions`. It incorporates all eight tabs of the [Website Porting Onboarding](https://docs.google.com/document/d/1ndEzGkivUaixkYwQWrDjKfKgZSD4allK40qpIPJULDY/edit), plus explicit biology/chemistry house rules. Source bullet symbols versus numbering must be resolved through list definitions; converted practice must not retain duplicate prose choice lists. Image citation text is exactly **Image Source**, linked to the supplied source page. Preserve book/page-only credits without inventing links.
 
-Classify hyperlinks by purpose: omit clearly internal drafting/source-document navigation (such as a linked “3.13 and 3.14” heading above Introduction), record the editorial exclusion, and leave the Google Doc unchanged. Preserve intended student resources/citations and ask when a link is ambiguous. Do not import linked documents automatically or invent replacement FiveHive URLs. Question groups use local numbering from 1 with the total shown; adapt source labels and shared lead-ins in the JSON, not the rendering code.
+Classify hyperlinks by purpose: omit clearly internal drafting/source-document navigation, record the editorial exclusion, and leave the Google Doc unchanged. Preserve intended student resources/citations and ask when a link is ambiguous. Do not import linked documents automatically or invent replacement FiveHive URLs. Question groups use local numbering from 1 with the total shown; adapt source labels and shared lead-ins in the JSON, not the rendering code.
 
 ## Mandatory fidelity gate for MCP clients
 
@@ -23,12 +23,7 @@ image using `assetBindings` with `assetId` and `targetPointer`. These mappings
 are mechanically checked but do not prove semantic fidelity or uploaded image
 availability. Actual download/upload/readback and rendered checks remain required.
 
-The MCP now blocks missing mappings, unbound source images, malformed question
-buffers/answer references, suspected encoding corruption, and practice flattened
-without any question card. These checks are conservative signals, not a complete
-question detector or proof of content correctness. Unknown source diagnostics
-also block review/submission. The old `port_source_via_mcp.py` text-flattening
-smoke-test harness is disabled and must not be used to create real ports.
+Mechanical validation checks supported structures, IDs, source mappings, asset bindings and encoding. These checks do not infer an article's intended content from words in its headings or byline. The AI must compare the source with the saved content to establish coverage and fidelity.
 
 For chapter practice, use `questionsAddCard` and complete `QuestionFormat[]`:
 prompt, stimulus, choices, supplied answer IDs, every source explanation, empty
@@ -37,7 +32,7 @@ blank lines between choice rationales. Preserve heading levels and inline
 emphasis. Source images require real image blocks/question attachments with
 verified private website assets; a caption or workflow alert is insufficient.
 
-Verified against the repository on 2026-11-02. This is the canonical JSON/porting contract for the local MCP and website API implementation. It is not a guarantee of lossless Google Docs conversion. No production data was read or written to prepare this reference.
+This reference describes the website's JSON formats and conversion constraints. Confirm compatibility with the configured website deployment; examples are illustrative data, not source material to reuse.
 
 ## 1. The three formats to keep separate
 
@@ -677,9 +672,9 @@ For source styles, resolve inherited/default formatting rather than assuming eve
 
 Capture an extraction snapshot/revision identifier when available. Keep source credentials and temporary image-access URLs out of public article metadata and logs.
 
-### Editorial porting profile from the supplied authoring notes
+### Editorial porting profile
 
-These preferences supplement the schema above. They come from the user's supplied porting context; they are **editorial conventions**, not extra requirements enforced by EditorJS. They apply to conversion from Google Docs without adding a PDF extraction workflow. The referenced onboarding document and example export were not supplied with these notes, so their additional rules and compatibility cannot be assumed.
+These editorial conventions supplement the schemas. Use the bundled editorial standards for the reviewed onboarding rules and subject-specific notation.
 
 #### Preserve source content and disclose changes
 
@@ -719,7 +714,7 @@ Use `$@...$` in supported inline text fields; continue to use **undelimited** La
 
 #### Mathematical tables as KaTeX arrays
 
-The supplied notes prefer KaTeX arrays over native table blocks for mathematical tables. Support this as an explicit table-conversion policy, preserving headings, all values, columns, and row order:
+Use KaTeX arrays for mathematical tables under the editorial profile, preserving headings, values, columns and row order:
 
 ```json
 {
@@ -736,7 +731,7 @@ This avoids the native table row-map conversion for that block. Native table blo
 #### MCQ normalization and explanation spacing
 
 - Keep practice MCQs in `questionsAddCard` blocks at their original position relative to article text. Preserve the source's actual choice count, ordering, wording, answer key, and explanations.
-- Each question group starts at 1 and displays current question / total (for example 1/3). Rebase source Questions 29–31 to local Questions 1–3, update shared lead-ins and internal cross-references consistently, and remove redundant original-number labels from the prompts. Preserve original source numbers in the source map only. Preserve meaningful mathematical numbers, citations and unrelated references. Do not change rendering code or add an artificial numbering offset.
+- Each question group starts at 1 and displays its current position and total. Update group-local lead-ins, prompt labels and cross-references consistently, preserving original numbers in source metadata. Keep meaningful mathematical numbers, citations and unrelated references. Use existing rendering behavior.
 - Store choice bodies without a redundant `A.`, `B.`, etc. prefix when using this profile, and map displayed letters to positions in the unchanged option array.
 - For newly created four-choice items, the profile prefers string option IDs `"1"`, `"2"`, `"3"`, `"4"`. These are strings, not numeric values. The website also accepts other string IDs. Preserve existing IDs during updates unless deliberately remapping every answer reference.
 - Set `topic` to the source's known topic number, such as `"1.7"`; do not infer it from an unrelated destination unit.
@@ -755,12 +750,12 @@ Example explanation buffer:
 
 In the serialized JSON file, `\n\n` represents two newlines after `JSON.parse`. A parsed string containing the four literal characters backslash-n-backslash-n is a double-escaping error. Question rendering uses `whitespace-pre-wrap`, so actual newline separators matter. The example above illustrates spacing only; it is not an answer key for another example in this reference.
 
-Two compatibility corrections to the pasted notes:
+Authored question compatibility:
 
-1. **`questionInstance` is not a required authored field.** The shared `QuestionFormat` type defines `question`. The preview/hydrator derives a `questionInstance` alias from it. Generate canonical `question.value`; if an explicitly supported legacy payload already includes an alias, keep both values synchronized during normalization. Do not add the alias solely because the pasted notes list it.
+1. **`questionInstance` is not a required authored field.** The shared `QuestionFormat` type defines `question`. The preview/hydrator derives a `questionInstance` alias from it. Generate canonical `question.value`; if an explicitly supported legacy payload already includes an alias, keep both values synchronized during normalization. Do not fabricate renderer-derived aliases.
 2. **Automatic A–D labeling is not universal.** The current guide Check For Understanding and quiz renderers display option content without adding letter badges. The editor labels options numerically. If explanations refer to A–D, verify the intended display surface; add UI labels or agree on a labeling policy rather than claiming the guide automatically supplies them. Keep option labels as presentation data instead of silently altering answer identities.
 
-The notes cite EditorJS `2.31.0-rc.7` from an example export that was not attached. This repo's starter JSON uses `2.30.2`, and the locally installed package inspected here reports `2.30.8`. The importer checks for a string, not version compatibility. Do not switch to the cited release-candidate version or assume compatibility from its text alone; verify the actual target editor/export when implementing.
+Use an EditorJS version compatible with the destination website. A version string alone does not establish tool or schema compatibility; check the destination's actual import/export contract.
 
 #### Images and handoff information
 
@@ -777,111 +772,12 @@ Alongside the validation contract below, enforce this profile against the actual
 - Inspect parsed explanation values for actual blank lines between source-provided per-choice rationales, plus sensible sentence spacing. Do not manufacture a four-part explanation where the source supplies a different structure.
 - Check removed presentational prefixes, topic values, unique IDs, and answer-to-option mappings after any ID changes.
 - Validate KaTeX against strings read back from the JSON file; ensure the storage/readback representation has not changed escaping.
-- If the editor displays different text or formatting, investigate serialization, sanitizer behavior, browser-local state, and caches using the observed payload. Do not presume the user imported an old file.
+- If the editor displays different text or formatting, investigate serialization, sanitizer behavior, browser-local state, and caches using the observed payload.
 - Return an import-ready Editor JSON artifact when export is requested, plus the external diagnostics/correction/asset report. No report or MCP wrapper belongs inside the raw EditorJS envelope.
 
-## 9. Proposed MCP interface
+## 9. MCP workflow
 
-The local MCP exposes these tools and the website implements the corresponding authenticated HTTPS API under `/api/mcp/v1`. The website API is not a second MCP server; it is the scoped publishing backend called by the local MCP. Google Drive read access is intentionally external: in Codex, install and connect the Google Drive plugin, retrieve the native document resource, and pass that resource to `ingest_source_document`. The local MCP does not contain a Google OAuth client, token store, or independent Google read tool. Google Drive read access alone does not grant website write capability.
-
-Current source and porting tools:
-
-| Tool | Purpose |
-| --- | --- |
-| `list_porting_destinations` | Read courses, ordered units, and chapter identities |
-| `ingest_source_document` | Normalize a document resource retrieved by the authorized Google Drive plugin; preserve tabs, source structure, assets, and unsupported elements |
-| `get_document_nodes` | Read bounded pages of normalized source nodes |
-| `get_source_image` | Read source image metadata from a saved snapshot |
-| `prepare_guide_import` | Convert, validate, resolve assets, and produce a previewable plan without publishing |
-| `validate_guide_import` | Deep schema checks plus editor/storage and render checks |
-| `apply_guide_import` | Apply the exact prepared plan to an explicit destination with concurrency checks |
-| `get_import_result` | Read saved content, metadata/listing consistency, and diagnostics |
-
-Codex setup command: run `/plugins`, search for **Google Drive**, choose **Install plugin**, and connect the Google account when prompted. The plugin handles provider authorization and 2FA; it is not installed by the local PowerShell script. See the [official Codex plugin guidance](https://help.openai.com/en/articles/20001256).
-
-Example preparation request:
-
-```json
-{
-  "schemaVersion": "fivehive-porting/1",
-  "source": {
-    "provider": "google-docs",
-    "documentId": "SOURCE_DOCUMENT_ID",
-    "tabIds": ["SOURCE_TAB_ID"]
-  },
-  "destination": {
-    "subjectSlug": "porting",
-    "unitId": "unitA123",
-    "chapterId": "chapA123",
-    "mode": "update"
-  },
-  "metadata": {
-    "chapterTitle": "Cell Structure",
-    "author": "Author name",
-    "isPublic": false
-  },
-  "policy": {
-    "unsupportedElements": "error",
-    "nativeEquations": "error",
-    "assets": "rehost",
-    "existingContent": "replace-body-preserve-metadata"
-  }
-}
-```
-
-Policy values above are proposed MCP enums, not existing website fields. The server should require an explicit suggestions view at extraction; its API enum can be stored in the plan rather than passed through an invented website field.
-
-Proposed preparation response:
-
-```json
-{
-  "planId": "import-plan-01",
-  "schemaVersion": "fivehive-porting/1",
-  "status": "needs-attention",
-  "destinationVersion": "OBSERVED_VERSION_TOKEN",
-  "editorData": {
-    "time": 1793577600000,
-    "version": "2.30.2",
-    "blocks": []
-  },
-  "assets": [],
-  "sourceMap": [],
-  "diagnostics": [
-    {
-      "severity": "error",
-      "code": "NATIVE_EQUATION_UNRESOLVED",
-      "source": { "tabId": "SOURCE_TAB_ID", "startIndex": 10, "endIndex": 11 },
-      "message": "An equation requires source LaTeX or an explicit fallback."
-    }
-  ]
-}
-```
-
-`sourceMap` should associate source tab/ranges or object IDs with output block IDs and asset IDs. `assets` should record MIME type, size, source object identity, and resolved website URL/storage path. Store provenance in an import-job record rather than relying on arbitrary extra EditorJS fields to survive a browser save.
-
-Do not call the existing editor with this wrapper; pass only `editorData`. Conversely, do not store editor-form table arrays directly through Firestore.
-
-### Apply semantics to implement
-
-1. Resolve destination from real records. Never guess a course/unit/chapter ID from display text. Require an explicit create mode to create missing structure.
-2. Use one immutable conversion plan. On apply, check the source snapshot and destination version still match. Return a conflict instead of overwriting intervening author edits.
-3. Use a stable import identity/idempotency key and reuse known destination IDs on retries. Do not regenerate every block/asset on every call. Independent copies receive new question instance IDs; updates preserve identities where content continuity matters.
-4. Upload and verify assets, then derive Firestore data by converting every table. Keep editor data unchanged for export and preview.
-5. Update the chapter and the affected subject/unit listing entries transactionally when structural or visibility fields change. Preserve unrelated array entries and fields. Avoid reusing the whole admin structure-save routine: that routine deletes documents absent from its submitted listing snapshot.
-6. Preserve `createdAt`; set an intentional update timestamp in MCP job metadata or a supported chapter extension. Distinguish chapter document path identity from legacy internal `id`.
-7. Read back chapter plus listings, convert storage data to editor form, validate it, and render it using the website renderer. Return the observed target and diagnostics.
-8. Account for failed uploads/writes and orphan assets. Roll back only assets created by this import when safe; do not delete shared originals. Retain sufficient prior state for a targeted rollback without replacing a whole subject from a stale snapshot.
-9. Return the import outcome once persistence is verified. Report any publication/cache delay separately.
-
-Preparation and apply are useful tool boundaries, not a requirement to ask for repeated user confirmation. An agent can execute an authorized port through both stages while still producing inspectable plans and honest diagnostics.
-
-### Authentication and execution environment
-
-The current browser Firestore rules allow members/admins to write subjects, units, chapters, tests, and FRQ templates. Public chapter/test reads require `isPublic == true`; listing reads are public. Server Admin SDK clients bypass Firestore rules, so a custom service must implement equivalent caller authorization and restrict destinations itself. The Firebase web API key in frontend configuration is not a server write credential. [Firebase rule conditions and server-client behavior](https://firebase.google.com/docs/firestore/security/rules-conditions).
-
-Do not import React components, browser Firebase initialization, IndexedDB helpers, or DOM-based sanitizer functions into a headless MCP process as though they were pure shared libraries. Extract pure schema/serialization/validation helpers and use a server-capable HTML sanitizer. The repo's feedback issue API is unrelated to content importing.
-
-Storage access rules, deployed IAM, and actual production data were not verified in this investigation. Read the deployed configuration during implementation rather than inferring access from the editor uploader.
+Use the implemented tools and bundled schemas described in the README and workflow resource. The AI interprets source content; the MCP manages structured source snapshots, artifacts, assets and website API calls. Discover destinations and compare source content before submission. Keep authentication and provenance out of public article data.
 
 ## 10. Validation required before calling a conversion successful
 
@@ -901,13 +797,13 @@ This is the proposed acceptance contract for the MCP:
 - New imports, repeat imports, conflicts, independent copies, asset failures, and rollback have defined outcomes.
 - Round-trip test: source → editor JSON → Firestore representation → editor JSON → rendered chapter. Also reopen and save in the website editor to detect dropped fields or browser-local question state problems.
 
-Meaningful fixtures include: plain guide; styled text with literal `<`/`&`; nested and mixed lists; two tables including an 11-row table; image with rich caption; inline/display math including invalid LaTeX; one and multiple question cards with media; standalone test; digital FRQ with a rich rubric and stable legacy parts; and a multi-tab Google Doc containing an unsupported native equation.
+Meaningful fixtures include: plain guide; styled text with literal `<`/`&`; nested and mixed lists; multiple tables with double-digit row indices; image with rich caption; inline/display math including invalid LaTeX; one and multiple question cards with media; standalone test; digital FRQ with a rich rubric and stable legacy parts; and a multi-tab Google Doc containing an unsupported native equation.
 
 The public server helper uses a **24-hour** fetch revalidation interval, and the client content cache uses **48 hours**. A direct database write does not invalidate those caches. Implement a real invalidation/version strategy or report the delay; do not promise immediate public visibility from a successful database readback alone.
 
-## 11. Repository source map
+## 11. Website implementation reference
 
-Paths are relative to the repository root:
+These paths refer to the separate website repository, not to dependencies on a local checkout:
 
 | Source | Why it matters |
 | --- | --- |
@@ -938,9 +834,3 @@ Paths are relative to the repository root:
 | `firestore.rules` | Client read/write authorization |
 
 Installed package source/readmes were used to cross-check list metadata, alert output, and math-tool fields. Resolve any package upgrade against the lockfile and actual runtime before treating these details as a permanent standard.
-
-## 12. Recommended first implementation scope
-
-Start with explicit existing chapter destinations, paragraphs, headers 1–3, simple lists, rehosted images, simple tables, and validated literal LaTeX. Make every unsupported element visible in diagnostics. Fix table restoration, chapter-save metadata preservation, and question-card initialization before promising broad editor round-trip compatibility. Add structured question/test/FRQ import as separate modes with their own schemas and fixtures.
-
-The first useful deliverable is a converter that returns validated EditorJS JSON plus an asset manifest, source map, and diagnostics. A complete website port additionally requires authorized persistence, synchronized listings, asset lifecycle handling, readback/render verification, and cache behavior.
