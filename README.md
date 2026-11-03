@@ -21,7 +21,7 @@ uv build
 .\install.ps1 -Targets codex -WebsiteBaseUrl https://www.fivehive.org
 ```
 
-2. Install the Google Drive plugin on codex, or the Google Drive connector on Claude. Search up for guidance. (not tested on claude yet)
+2. Install the Google Drive plugin on codex, or the Google Drive and Google Docs connector on Claude or Google Drive and Google Docs customization for Antigravity. Google for installation guidance.
 
 3. Restart your AI client or reconnect its MCP servers so it loads **fivehive-mcp**. The client starts the MCP automatically over stdio; you do not need to leave a separate terminal running or expose an MCP port.
 
