@@ -1,0 +1,1 @@
+"""FiveHive local MCP package."""

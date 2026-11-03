@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["time", "version", "blocks"],
+  "properties": {"time": {"type": "number"}, "version": {"type": "string"}, "blocks": {"type": "array", "items": {"type": "object", "required": ["id", "type", "data"], "properties": {"id": {"type": "string", "minLength": 1}, "type": {"enum": ["header", "paragraph", "image", "list", "questionsAddCard", "math", "quote", "table", "code", "alert", "embed", "delimiter"]}, "data": {"type": "object"}, "tunes": {"type": "object"}}, "additionalProperties": true}}},
+  "additionalProperties": true
+}

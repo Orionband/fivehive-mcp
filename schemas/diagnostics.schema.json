@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"array","items":{"type":"object","required":["code","severity","message"],"properties":{"code":{"type":"string"},"severity":{"enum":["blocking","warning"]},"message":{"type":"string"},"question":{"type":"string"},"targetPointer":{"type":"string"},"source":{"type":"object"}},"additionalProperties":true}}

@@ -1,0 +1,35 @@
+[project]
+name = "fivehive-mcp"
+version = "0.1.0"
+description = "Local document-source to FiveHive import MCP"
+requires-python = ">=3.12"
+dependencies = [
+  "mcp>=2.0,<3",
+  "httpx>=0.28,<1",
+  "pydantic>=2.10,<3",
+  "jsonschema>=4.23,<5",
+  "keyring>=25,<26",
+  "platformdirs>=4.3,<5",
+  "Pillow>=11,<12",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.3,<9", "respx>=0.22,<1"]
+
+[project.scripts]
+fivehive-mcp = "fivehive_mcp.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fivehive_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"docs/google-docs-porting-reference.md" = "fivehive_mcp/resources/porting-reference.md"
+"schemas" = "fivehive_mcp/resources/schemas"
+"docs/website-porting-examples.md" = "fivehive_mcp/resources/website-porting-examples.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
